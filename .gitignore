@@ -1,0 +1,9 @@
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.DS_Store
+*_original
+R[0-9]*.pdf
+R[0-9]*.html
+app/build/

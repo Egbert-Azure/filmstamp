@@ -1,0 +1,322 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="filmstamp-record" content="{{ record_state }}">
+<meta name="filmstamp-fingerprint" content="{{ fingerprint }}">
+<title>{{ roll_name }} — filmstamp review</title>
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #f7f6f3;
+    --panel: #ffffff;
+    --text: #1c1b1a;
+    --muted: #6b6963;
+    --border: #ddd9d2;
+    --accent: #8a5a3b;
+    --warn-bg: #fdf1e0;
+    --warn-border: #e8b978;
+    --flag-burst: #c0392b;
+    --flag-gps: #8a5a3b;
+    --flag-lens: #6d5b8a;
+    --flag-tz: #2b7a78;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #17161a;
+      --panel: #201f24;
+      --text: #ece9e4;
+      --muted: #9d9a94;
+      --border: #38363c;
+      --accent: #d69a6f;
+      --warn-bg: #3a2f1c;
+      --warn-border: #8a6a2f;
+      --flag-burst: #e07a68;
+      --flag-gps: #d69a6f;
+      --flag-lens: #a893d6;
+      --flag-tz: #6fc9c6;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 24px 16px 64px;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, "Helvetica Neue", Arial, sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+  .wrap { max-width: 1200px; margin: 0 auto; }
+  h1 { font-size: 22px; margin: 0 0 4px; }
+  .subtitle { color: var(--muted); margin: 0 0 20px; }
+  .meta {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 10px 20px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+    margin-bottom: 20px;
+  }
+  .meta div span { display: block; }
+  .meta .label { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .04em; }
+  .keywords { margin-top: 4px; }
+  .keywords span {
+    display: inline-block;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 2px 10px;
+    margin: 2px 4px 2px 0;
+    font-size: 12px;
+  }
+  .warnings {
+    background: var(--warn-bg);
+    border: 1px solid var(--warn-border);
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin-bottom: 20px;
+  }
+  .warnings h2 { font-size: 13px; margin: 0 0 8px; text-transform: uppercase; letter-spacing: .04em; }
+  .warnings ul { margin: 0; padding-left: 20px; }
+  .warnings.clean { background: var(--panel); border-color: var(--border); color: var(--muted); }
+  table { width: 100%; border-collapse: collapse; background: var(--panel); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+  th, td { padding: 8px 10px; text-align: left; border-bottom: 1px solid var(--border); vertical-align: top; }
+  th { font-size: 11px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
+  tr:last-child td { border-bottom: none; }
+  .thumbs { display: flex; gap: 6px; }
+  .thumb-box {
+    width: 84px; height: 84px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden;
+    background: var(--bg);
+    flex-shrink: 0;
+  }
+  .thumb-box img { width: 100%; height: 100%; object-fit: cover; }
+  .placeholder { color: var(--muted); font-size: 10px; text-align: center; }
+  .scan-name { color: var(--muted); font-size: 10px; margin-top: 3px; max-width: 84px; overflow-wrap: break-word; }
+  .frame-num { font-weight: 600; font-size: 15px; }
+  .runinfo {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+    margin-bottom: 20px;
+  }
+  .runinfo h2 { font-size: 13px; margin: 0 0 10px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
+  .runinfo table { border: none; border-radius: 0; }
+  .runinfo th, .runinfo td { padding: 4px 10px 4px 0; border-bottom: none; }
+  .runinfo .frame-count-ok { color: var(--flag-tz); }
+  .runinfo .frame-count-bad { color: var(--flag-burst); font-weight: 600; }
+  .runinfo .mismatch { color: var(--flag-burst); font-weight: 600; }
+  .caption { color: var(--muted); font-style: italic; max-width: 220px; }
+  .flags span {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: .03em;
+    border-radius: 4px;
+    padding: 2px 6px;
+    margin: 0 3px 3px 0;
+    color: #fff;
+  }
+  .flag-BURST { background: var(--flag-burst); }
+  .flag-NO-GPS { background: var(--flag-gps); }
+  .flag-LENS-FALLBACK { background: var(--flag-lens); }
+  .flag-LENS-CHOSEN { background: var(--flag-lens); }
+  .flag-TZ-DERIVED { background: var(--flag-tz); }
+  .flag-UNLOGGED { background: var(--flag-lens); }
+  footer { color: var(--muted); font-size: 12px; margin-top: 20px; }
+  .run-status {
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin-bottom: 20px;
+    font-weight: 600;
+    border: 1px solid var(--border);
+  }
+  .run-status .detail { font-weight: 400; color: var(--muted); margin-top: 2px; }
+  .run-status.dryrun { background: var(--panel); color: var(--text); }
+  .run-status.written { background: var(--warn-bg); border-color: var(--flag-tz); color: var(--flag-tz); }
+  .run-status.failed { background: var(--warn-bg); border-color: var(--flag-burst); color: var(--flag-burst); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>{{ roll_name }}{% if roll_number %} <span style="color:var(--muted)">· R{{ roll_number }}</span>{% endif %}</h1>
+  <p class="subtitle">{{ frame_count }} frame(s) reconciled — generated {{ generated_at }}</p>
+
+  {% if write_status is none %}
+  <div class="run-status dryrun">
+    Dry run — no files were written.
+  </div>
+  {% elif write_status.mode == 'written' %}
+  <div class="run-status written">
+    Written and verified — {{ write_status.written_verified }} file(s) stamped and confirmed on disk.
+    {% if write_status.skipped_existing %}
+    <div class="detail">{{ write_status.skipped_existing }} file(s) already carried DateTimeOriginal and were skipped (use --force to re-stamp).</div>
+    {% endif %}
+  </div>
+  {% else %}
+  <div class="run-status failed">
+    Write FAILED verification — {{ write_status.written_verified }} verified,
+    {{ write_status.written_failed }} written but failed verification,
+    {{ write_status.not_written }} not written.
+    {% if write_status.skipped_existing %}
+    <div class="detail">{{ write_status.skipped_existing }} file(s) already carried DateTimeOriginal and were skipped.</div>
+    {% endif %}
+    {% if write_status.exiftool_error %}
+    <div class="detail">ExifTool reported an error — see stderr from the run for the full message.</div>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  <div class="meta">
+    <div><span class="label">Camera</span><span>{{ camera.make }} {{ camera.model }}</span></div>
+    <div><span class="label">Film format</span><span>{{ camera.film_format or "—" }}</span></div>
+    <div><span class="label">Film stock</span><span>{{ stock.name if stock else "unresolved" }}</span></div>
+    <div><span class="label">Filter</span><span>{{ filter_name or "—" }}</span></div>
+    <div><span class="label">Developed at</span><span>{{ developed_at or "—" }}</span></div>
+    <div style="grid-column: 1 / -1;">
+      <span class="label">Keywords</span>
+      <div class="keywords">
+        {% for kw in keywords %}<span>{{ kw }}</span>{% else %}<span>—</span>{% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <div class="runinfo">
+    <h2>Run provenance</h2>
+    <table>
+      <tr>
+        <th>Export</th>
+        <td>{{ resolved_export }}</td>
+      </tr>
+      <tr>
+        <th>Scan folder</th>
+        <td>{{ resolved_scan_folder }}</td>
+      </tr>
+      <tr>
+        <th>Frame count</th>
+        <td>
+          {% if expected_frames is not none %}
+            <span class="{{ 'frame-count-bad' if frame_count_mismatch else 'frame-count-ok' }}">
+              {{ actual_frame_count }} logged / {{ expected_frames }} expected for {{ camera.model }}
+            </span>
+          {% else %}
+            {{ actual_frame_count }} logged (no expected_frames set for {{ camera.model }})
+          {% endif %}
+        </td>
+      </tr>
+      {% for dz in day_zone_rows %}
+      <tr>
+        <th>{{ dz.day }}</th>
+        <td class="{{ 'mismatch' if dz.mismatch else '' }}">{{ dz.zone }} ({{ dz.method }})</td>
+      </tr>
+      {% endfor %}
+      {% if lens_fallback_rows %}
+      <tr>
+        <th>Lens fallback</th>
+        <td>
+          {% for lf in lens_fallback_rows %}Frame {{ lf.frame_number }} → {{ lf.lens }}{% if not loop.last %}; {% endif %}{% endfor %}
+        </td>
+      </tr>
+      {% endif %}
+      {% if unscanned_frames %}
+      <tr>
+        <th>Unscanned</th>
+        <td class="mismatch">
+          Frame(s) {{ unscanned_frames|join(", ") }} have no file yet — partially scanned roll.
+        </td>
+      </tr>
+      {% endif %}
+      {% if unlogged_frames %}
+      <tr>
+        <th>Unlogged</th>
+        <td class="mismatch">
+          File(s) for frame(s) {{ unlogged_frames|join(", ") }} are not in the afilm log — date and camera data copied from the neighbouring frame (no GPS).
+        </td>
+      </tr>
+      {% endif %}
+    </table>
+  </div>
+
+  {% if warnings %}
+  <div class="warnings">
+    <h2>{{ warnings|length }} warning(s)</h2>
+    <ul>
+      {% for w in warnings %}<li>{{ w }}</li>{% endfor %}
+    </ul>
+  </div>
+  {% else %}
+  <div class="warnings clean">0 warnings.</div>
+  {% endif %}
+
+  <table>
+    <thead>
+      <tr>
+        <th>Frame</th>
+        <th>Scan / snap</th>
+        <th>Date/time (tz)</th>
+        <th>Lens</th>
+        <th>f/ · shutter · ISO</th>
+        <th>GPS</th>
+        <th>Note</th>
+        <th>Flags</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for row in rows %}
+      <tr>
+        <td class="frame-num">{{ row.frame_number }}</td>
+        <td>
+          <div class="thumbs">
+            {% for scan in row.scans %}
+            <div>
+              <div class="thumb-box">
+                {% if scan.uri %}
+                  <img src="{{ scan.uri }}" alt="scan, frame {{ row.frame_number }}">
+                {% else %}
+                  <span class="placeholder">thumbnail failed</span>
+                {% endif %}
+              </div>
+              <div class="scan-name">{{ scan.name }}</div>
+            </div>
+            {% endfor %}
+            <div class="thumb-box">
+              {% if row.snap_uri %}
+                <img src="{{ row.snap_uri }}" alt="phone reference, frame {{ row.frame_number }}">
+              {% else %}
+                <span class="placeholder">no snap</span>
+              {% endif %}
+            </div>
+          </div>
+        </td>
+        <td>{{ row.capture_time }}</td>
+        <td>{{ row.lens }}</td>
+        <td>{{ row.aperture }} · {{ row.shutter }} · ISO {{ row.iso }}</td>
+        <td>{{ row.gps or "—" }}</td>
+        <td class="caption">{{ row.caption or "—" }}</td>
+        <td class="flags">
+          {% for chip in row.flag_chips %}<span class="flag-{{ chip.css }}">{{ chip.label }}</span>{% endfor %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <footer>
+    {% if write_status is none %}
+    filmstamp dry run — no files were written.
+    {% elif write_status.mode == 'written' %}
+    filmstamp write completed — {{ write_status.written_verified }} file(s) written and verified.
+    {% else %}
+    filmstamp write FAILED verification — see run status above.
+    {% endif %}
+  </footer>
+</div>
+</body>
+</html>

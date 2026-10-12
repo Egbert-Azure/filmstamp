@@ -1,0 +1,104 @@
+schema_version = 1
+
+# Only files under this folder are ever written to (the resolved path, not the symlink)
+safety_root = "/Users/you/Library/CloudStorage/SynologyDrive-Photos"
+
+# Where afilm export zips land; "R49" is looked up here
+downloads_dir = "/Users/you/Downloads"
+
+[time]
+timezone                = "America/Los_Angeles"  # used when GPS gives no zone
+derive_timezone_from_gps = true                  # per calendar day
+burst_threshold_seconds = 15                     # frames closer than this are flagged as a burst
+
+[identity]
+artist    = "Jane Doe"
+copyright = "© 2026 Jane Doe"
+
+[cameras."pentacon"]                     # key = camera name in the afilm export, lowercase
+make            = "VEB Pentacon Dresden"
+model           = "Pentacon Six TL"
+film_format     = "6x6"
+film_holder     = "Lomography 120 Film Mask"
+body_serial     = "100001"
+default_lens    = "biometar-80"
+expected_frames = 13
+
+[cameras."zeiss ikon ikonta"]
+make            = "Zeiss Ikon"
+model           = "Ikonta 521/2"
+film_format     = "6x9"
+film_holder     = "Lomography 120 Film Mask"
+body_serial     = "IK0001"
+default_lens    = "tessar-105"
+fixed_lens      = true                   # camera has no interchangeable lens
+expected_frames = 8
+
+[lenses."mir-38b f3.5 65mm"]             # key = lens name in the afilm export, lowercase
+alias_of = "mir-38b"
+
+[lenses."carl zeiss"]
+alias_of = "biometar-80"
+
+[lenses."car zeiss"]
+alias_of = "biometar-80"
+
+[lenses."biometar 2.8/120 mm"]
+alias_of = "biometar-120"
+
+[lenses."biometar 2.8/80"]
+alias_of = "biometar-80"
+
+[lenses.tessar-105]
+make = "Zeiss Ikon"
+model = "Tessar 105mm f/4.5"
+focal_length_mm = 105
+lens_serial = "200001"
+
+[lenses.mir-38b]
+make = "Arsenal"
+model = "MIR 38B 65mm f/3.5"
+focal_length_mm = 65
+
+[lenses.biometar-80]
+make = "Carl Zeiss Jena"
+model = "Biometar 80mm f/2.8 Zebra"
+focal_length_mm = 80
+lens_serial = "300001"
+
+[lenses.biometar-120]
+make = "Carl Zeiss Jena"
+model = "Biometar 120mm f/2.8 Zebra"
+focal_length_mm = 120
+lens_serial = "300002"
+
+# keys are matched case-insensitively against the roll name, longest first
+[film_stocks."ilford fp4"]
+name = "Ilford FP4 Plus 125"
+type = "bw"
+
+[film_stocks."ilford xp2"]
+name = "Ilford XP2 Super 400"
+type = "bw"
+
+[film_stocks.gp3]
+name = "Shanghai GP3 100"
+type = "bw"
+
+[film_stocks."kodak gold"]
+name = "Kodak Gold 200"
+type = "colour"
+
+[roll_defaults]                          # can be overridden per run
+scan_method    = "Home Scan"
+scan_equipment = "Epson V800"
+developed_at   = ""
+developer      = ""
+filter         = ""
+
+[keywords]
+emit_film_stock  = true
+emit_film_format = true
+emit_camera      = true
+emit_filter      = true
+extra = []

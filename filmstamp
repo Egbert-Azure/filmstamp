@@ -1,0 +1,11 @@
+#!/bin/sh
+# Launcher: runs filmstamp.py with this repo's own virtualenv, from any folder.
+# Install once:  ln -s "<path to this repo>/filmstamp" ~/bin/filmstamp
+src="$0"
+while [ -L "$src" ]; do
+  dir=$(cd "$(dirname "$src")" && pwd)
+  src=$(readlink "$src")
+  case "$src" in /*) ;; *) src="$dir/$src" ;; esac
+done
+here=$(cd "$(dirname "$src")" && pwd)
+exec "$here/.venv/bin/python" "$here/filmstamp.py" "$@"
